@@ -1,4 +1,4 @@
-#Script to cleanup old images/manifest for the last 7 days
+#Script to cleanup old images/manifest in Azure container registry for the last 7 days
 #Open Azure Cloud Shell and run commands below
 #Change the <container_registry> name accordingly
 
