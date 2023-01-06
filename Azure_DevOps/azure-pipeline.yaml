@@ -1,0 +1,80 @@
+# Sample pipeline to build and update tag's image using GitOps way - ArgoCD
+# Build and push an image to Azure Container Registry
+
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    include:
+    - Test01 #Helm's folder store values.yaml file
+
+resources:
+  repositories:  
+  - repository: Repo_01 #Code repo
+    type: git
+    name: Project_name/Repo_01
+    
+  - repository: Repo_02 #Manifest repo
+    type: git
+    name: Project_name/Repo_02
+
+variables:
+  # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: 'xxx'
+  imageRepository: 'testapp'
+  containerRegistry: 'arc_name.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/Repo_01/Test01/Dockerfile'
+  tag: '$(Build.BuildNumber)'
+  cluster: 'Project_name_test'
+  namespace: 'Project_name-dev'
+  app: 'test-app'
+
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
+
+stages:
+- stage: Build
+  displayName: Build and push stage
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: $(vmImageName)
+    steps:    
+    - checkout: git://Project_name/Repo_01
+      persistCredentials: true
+    - checkout: git://Project_name/Repo_02
+      persistCredentials: true
+      
+    - task: Docker@2
+      displayName: Build and push an image to container registry
+      inputs:
+        command: buildAndPush
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+    
+    - task: CmdLine@2
+      displayName: Update image's tag
+      inputs:
+        script: |                
+          git config --global user.email "xxx@xxx.com"
+          git config --global user.name "xxx"          
+          ls -lsrht
+
+          #Update tag's image
+          cd Repo_02          
+          B64_PAT=$(printf "%s"":xxx" | base64)
+          sed -i 's/tag:.*/tag: "$(tag)"/' ./$(cluster)/$(namespace)/$(app)/values.yaml
+          git add .        
+          git commit -m "Automatic update image's tag"         
+          
+          #Push updates to repo
+          git branch temp-branch
+          git checkout master
+          git merge temp-branch
+          git -c http.extraHeader="Authorization: Basic ${B64_PAT}" push origin master
+
