@@ -1,5 +1,4 @@
 # Sample pipeline to build and update tag's image using GitOps way - ArgoCD
-# Build and push an image to Azure Container Registry
 
 trigger:
   branches:
