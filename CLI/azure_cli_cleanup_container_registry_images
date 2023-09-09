@@ -1,0 +1,14 @@
+#Azure CLI Shell script that cleanup old azure container registry images 
+
+result="$(az acr repository list -n acrconsolidatortest --output tsv)"
+
+for i in $result; \
+do az acr run \
+--registry acrconsolidatortest \
+--cmd "acr purge \
+--filter '$i:.*' \
+--untagged \
+--ago 1h \
+--keep 2" \
+/dev/null; \
+done
