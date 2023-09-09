@@ -1,4 +1,5 @@
-#Azure CLI Shell script that cleanup old azure container registry images 
+# Azure CLI Shell script that cleanup old azure container registry images 
+# Azure DevOps pipeline
 
 result="$(az acr repository list -n acrconsolidatortest --output tsv)"
 
