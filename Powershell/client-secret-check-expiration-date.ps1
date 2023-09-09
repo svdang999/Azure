@@ -2,7 +2,7 @@
 
 #1. Login to Azure using Service Principal
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 
-$azureAplicationId = 'xxx-xxx-xxx-xxx-xxx' #sp
+$azureAplicationId = 'xxx-xxx-xxx-xxx-xxx' #spp
 $azureTenantId = 'c8482830-6d15-4014-a427-155b23c5cdcd' #Itelya Tenant
 $azurePassword = ConvertTo-SecureString $env:spappsecret -AsPlainText -Force
 $psCred = New-Object System.Management.Automation.PSCredential($azureAplicationId , $azurePassword) 
