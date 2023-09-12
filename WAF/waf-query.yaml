@@ -3,7 +3,7 @@
 #Search host for a status code 	
 AzureDiagnostics
   | where Category == "ApplicationGatewayAccessLog"
-  | where host_s == "didi-db.smartbilling.com"
+  | where host_s == "didi.com"
   | where httpStatus_d == "404"
   | sort by TimeGenerated
 
@@ -12,6 +12,6 @@ AzureDiagnostics
 AzureDiagnostics 
   | where ResourceProvider == "MICROSOFT.NETWORK" and Category == "ApplicationGatewayFirewallLog" 
   | where action_s == "Blocked" or action_s == "Matched" 
-  | where clientIp_s == "20.52.55.218"
+  | where clientIp_s == "333.52.55.444"
   | where requestUri_s == "be/api/AutoService/ArchiveBookingLineHistory"
   | sort by TimeGenerated desc
