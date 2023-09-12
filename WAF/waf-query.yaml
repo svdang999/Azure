@@ -1,1 +1,17 @@
 # Queries for Azure Web Application Gateway
+
+#Search host for a status code 	
+AzureDiagnostics
+  | where Category == "ApplicationGatewayAccessLog"
+  | where host_s == "didi-db.smartbilling.com"
+  | where httpStatus_d == "404"
+  | sort by TimeGenerated
+
+
+#Search Blocked/Matched rules
+AzureDiagnostics 
+  | where ResourceProvider == "MICROSOFT.NETWORK" and Category == "ApplicationGatewayFirewallLog" 
+  | where action_s == "Blocked" or action_s == "Matched" 
+  | where clientIp_s == "20.52.55.218"
+  | where requestUri_s == "be/api/AutoService/ArchiveBookingLineHistory"
+  | sort by TimeGenerated desc
