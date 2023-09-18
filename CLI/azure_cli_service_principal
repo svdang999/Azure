@@ -1,0 +1,3 @@
+## Create SP with 100 years lifetime
+## https://stackoverflow.com/questions/74527037/azure-cli-how-to-create-a-new-client-secret-with-a-specific-description
+az ad app credential reset --id <ApplicationID> --display-name <Enter description here> --append
