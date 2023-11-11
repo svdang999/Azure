@@ -16,6 +16,9 @@ AzureDiagnostics
   | where requestUri_s == "be/api/AutoService/ArchiveBookingLineHistory"
   | sort by TimeGenerated desc
 
-
+# https://learn.microsoft.com/en-us/powershell/module/az.network/stop-azapplicationgateway?view=azps-10.4.1
 # Start WAF (Powershell Azure CLI)
 Get-AzApplicationGateway -ResourceGroupName "rg-tim-test" -Name "waf-tim-test" | Start-AzApplicationGateway
+
+# Stop WAF
+Get-AzApplicationGateway -ResourceGroupName "rg-tim-test" -Name "waf-tim-test" | Stop-AzApplicationGateway
