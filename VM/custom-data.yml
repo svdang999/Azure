@@ -1,0 +1,12 @@
+# Ref: https://www.makeuseof.com/automate-virtual-machine-creation-azure-with-cloud-init/
+vim: syntax=yaml
+
+# Install, update, and upgrade packages
+package_upgrade: true
+package_update: true
+package_reboot_if_require: true
+
+packages:
+  - traceroute
+  - net-tools
+  - fail2ban
