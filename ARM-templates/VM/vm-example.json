@@ -8,7 +8,7 @@
         },
         "networkInterfaceName1": {
             "type": "string",
-            "defaultValue": "vm-paypense-test304_z1"
+            "defaultValue": "vm-paypense-test_nic01"
         },
         "networkSecurityGroupName": {
             "type": "string",
@@ -148,8 +148,8 @@
             "defaultValue": null
         },
         "customData": {
-            "type": "secureString",
-            "defaultValue": null
+            "type": "string",
+            "defaultValue": "https://raw.githubusercontent.com/svdang999/Azure/main/VM/custom-data.txt"
         },
         "virtualMachine1Zone": {
             "type": "string",
@@ -299,7 +299,7 @@
                             "patchMode": "ImageDefault"
                         }
                     },
-                    "customData": "[parameters('customData')]"
+                    "customData": "[base64(parameters('customData'))]"
                 }
             },
             "identity": {
