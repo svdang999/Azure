@@ -4,18 +4,21 @@
     "parameters": {
         "resourceName": {
             "type": "String",
+            "defaultValue": "aks-paypense-test",
             "metadata": {
                 "description": "The name of the Managed Cluster resource."
             }
         },
         "location": {
             "type": "String",
+            "defaultValue": "germanywestcentral",
             "metadata": {
                 "description": "The location of AKS resource."
             }
         },
         "dnsPrefix": {
             "type": "String",
+            "defaultValue": "aks-paypense-test-dns",
             "metadata": {
                 "description": "Optional DNS prefix to use with hosted Kubernetes API server FQDN."
             }
@@ -42,6 +45,7 @@
                 "kubenet"
             ],
             "type": "String",
+            "defaultValue": "azure",
             "metadata": {
                 "description": "Network plugin used for building Kubernetes network."
             }
@@ -69,6 +73,7 @@
         },
         "nodeResourceGroup": {
             "type": "String",
+            "defaultValue": "MC_rg-paypense-test_aks-paypense-test_germanywestcentral",
             "metadata": {
                 "description": "The name of the resource group containing agent pool nodes."
             }
@@ -82,26 +87,29 @@
                 "node-image"
             ],
             "type": "String",
+            "defaultValue": "none",
             "metadata": {
                 "description": "Auto upgrade channel for a managed cluster."
             }
         },
         "adminGroupObjectIDs": {
-            "defaultValue": [],
+            "defaultValue": [
+                "ff55d6cd-4f43-4fe2-b48f-f825eeee78d9"
+            ],
             "type": "Array",
             "metadata": {
                 "description": "An array of AAD group object ids to give administrative access."
             }
         },
         "azureRbac": {
-            "defaultValue": false,
+            "defaultValue": true,
             "type": "Bool",
             "metadata": {
                 "description": "Enable or disable Azure RBAC."
             }
         },
         "disableLocalAccounts": {
-            "defaultValue": false,
+            "defaultValue": true,
             "type": "Bool",
             "metadata": {
                 "description": "Enable or disable local accounts."
@@ -131,7 +139,7 @@
         "acrName": {
             "type": "String",
             "metadata": {
-                "description": "Specify the name of the Azure Container Registry."
+                "description": "Specify the name of the Azure Container Registry (i.e acrpaypensetest)."
             }
         },
         "acrResourceGroup": {
