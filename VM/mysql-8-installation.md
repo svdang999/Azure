@@ -1,3 +1,8 @@
+### Ref
+```
+https://www.cyberciti.biz/faq/installing-mysql-server-on-ubuntu-22-04-lts-linux/
+```
+
 ### Example of installation MySQL 8 on Ubuntu 22.04 Virtual Machine
 ```
 root@vm-paypense-test:~# apt install mysql-server-8.0
