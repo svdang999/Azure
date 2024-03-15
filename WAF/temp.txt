@@ -1,4 +1,3 @@
-azadmin@vm-sonarqube-prd:/opt/sonarqube/sonarqube-10.4.1.88267$ cat /opt/sonarqube/sonarqube-10.3.0.82913/conf/sonar.properties 
 #--------------------------------------------------------------------------------------------------
 # IMPORTANT:
 # This file will *not* be reloaded upon hitting the "Restart" button in the UI, or using the
@@ -24,8 +23,8 @@ azadmin@vm-sonarqube-prd:/opt/sonarqube/sonarqube-10.4.1.88267$ cat /opt/sonarqu
 # User credentials.
 # Permissions to create tables, indices and triggers must be granted to JDBC user.
 # The schema must be created first.
-sonar.jdbc.username=sonar
-sonar.jdbc.password=uXzTy44c>4sQj1}
+#sonar.jdbc.username=
+#sonar.jdbc.password=
 
 #----- Embedded Database (default)
 # H2 embedded database server listening port, defaults to 9092
@@ -42,16 +41,16 @@ sonar.jdbc.password=uXzTy44c>4sQj1}
 
 #----- PostgreSQL 11 or greater
 # By default the schema named "public" is used. It can be overridden with the parameter "currentSchema".
-sonar.jdbc.url=jdbc:postgresql://localhost/sonardb
+#sonar.jdbc.url=jdbc:postgresql://localhost/sonarqube?currentSchema=my_schema
 
 
 #----- Microsoft SQLServer 2014/2016/2017/2019/2022 and SQL Azure
 # A database named sonar must exist and its collation must be case-sensitive (CS) and accent-sensitive (AS)
 # Use the following connection string if you want to use integrated security with Microsoft Sql Server
 # Do not set sonar.jdbc.username or sonar.jdbc.password property if you are using Integrated Security
-# For Integrated Security to work, you have to download the Microsoft SQL JDBC Auth 12.2.0 package from
-# https://github.com/microsoft/mssql-jdbc/releases/download/v12.2.0/mssql-jdbc_auth.zip
-# and 'mssql-jdbc_auth-12.2.0.x64.dll' to your path.
+# For Integrated Security to work, you have to download the Microsoft SQL JDBC Auth 12.4.2 package from
+# https://github.com/microsoft/mssql-jdbc/releases/download/v12.4.2/mssql-jdbc_auth.zip
+# and 'mssql-jdbc_auth-12.4.2.x64.dll' to your path.
 #sonar.jdbc.url=jdbc:sqlserver://localhost;databaseName=sonar;integratedSecurity=true
 
 # Use the following connection string if you want to use SQL Auth while connecting to MS Sql Server.
@@ -330,13 +329,17 @@ sonar.jdbc.url=jdbc:postgresql://localhost/sonardb
 #--------------------------------------------------------------------------------------------------
 # LOGGING
 
-# SonarQube produces logs in 4 logs files located in the same directory (see property sonar.path.logs below),
+# SonarQube produces logs in files located in the same directory (see property sonar.path.logs below),
 # one per process:
 #   Main process (aka. App) logs in sonar.log
 #   Web Server (aka. Web) logs in web.log
 #   Compute Engine (aka. CE) logs in ce.log
 #   Elasticsearch (aka. ES) logs in es.log
-#
+# and two other log files:
+#   Access logs
+#   Deprecation logs
+
+# Regarding logs for processes:
 # Depending on the startup, all 4 files follow the same rolling policy (see sonar.log.rollingPolicy and sonar.log.maxFiles) but it applies
 # individually (eg. if sonar.log.maxFiles=4, there can be at most 4 of each files, ie. 16 files in total).
 #
@@ -392,6 +395,7 @@ sonar.jdbc.url=jdbc:postgresql://localhost/sonardb
 #    - unlimited on time rolling policy. Set to zero to disable old file purging.
 #sonar.log.maxFiles=7
 
+# Regarding the Access logs:
 # Access log is the list of all the HTTP requests received by server. If enabled, it is stored
 # in the file {sonar.path.logs}/access.log. This file follows the same rolling policy as other log file
 # (see sonar.log.rollingPolicy and sonar.log.maxFiles).
@@ -408,6 +412,16 @@ sonar.jdbc.url=jdbc:postgresql://localhost/sonardb
 #sonar.web.accessLogs.pattern=%i{X-Forwarded-For} %l %u [%t] "%r" %s %b "%i{Referer}" "%i{User-Agent}" "%reqAttribute{ID}"
 # Default value (which was "combined" before version 6.2) is equivalent to "combined + SQ HTTP request ID":
 #sonar.web.accessLogs.pattern=%h %l %u [%t] "%r" %s %b "%i{Referer}" "%i{User-Agent}" "%reqAttribute{ID}"
+
+# Regarding the Deprecation logs:
+# Deprecation log is the list of all calls to deprecated Web API.
+# It is stored in the file {sonar.path.logs}/deprecation.log. This file follows the same rolling policy as other log file
+# (see sonar.log.rollingPolicy and sonar.log.maxFiles).
+
+# Format of deprecation log.
+# See https://docs.sonarsource.com/sonarqube/latest/instance-administration/server-logs-and-system-info/
+# The login of authenticated user is disabled by default.
+# sonar.deprecationLogs.loginEnabled=false
 
 
 #--------------------------------------------------------------------------------------------------
@@ -426,4 +440,3 @@ sonar.jdbc.url=jdbc:postgresql://localhost/sonardb
 # By sharing anonymous SonarQube statistics, you help us understand how SonarQube is used so we can improve the product to work even better for you.
 # We don't collect source code or IP addresses. And we don't share the data with anyone else.
 #sonar.telemetry.enable=true
-azadmin@vm-sonarqube-prd:/opt/sonarqube/sonarqube-10.4.1.88267$
