@@ -7,6 +7,13 @@ AzureDiagnostics
   | where httpStatus_d == "404"
   | sort by TimeGenerated
 
+# Search host with sub-path
+AzureDiagnostics
+  | where Category == "ApplicationGatewayAccessLog"
+  | where host_s == "rabbitmq-test.example.com"
+  | where requestUri_s == "/messages"
+  | sort by TimeGenerated
+
 
 # Search Blocked/Matched rules
 AzureDiagnostics 
