@@ -1,0 +1,46 @@
+# Sample pipeline using ArgoCD with ADO
+# Inherit pipeline from repo templates
+resources:
+  repositories:
+    - repository: templates
+      type: git
+      name: pipeline-templates
+    - repository: Aurora_Workload_Production
+      type: git
+      name: Aurora_Workload_Production
+
+name: $(Date:yyyyMMdd)$(Rev:rr)
+
+trigger:
+  branches:
+    include:
+      - release/*
+  paths:
+    include:
+      - components/src/local_ocr
+
+pool:
+  name: T2P Pipelines
+  demands: Agent.OS -equals Linux
+
+variables:
+  - group: vg-aurora-prd
+  - name: image-name
+    value: aurora-localocr-service
+  - name: image-tag
+    value: $(Build.BuildNumber)
+  - name: dockerfile-path
+    value: "$(Build.SourcesDirectory)/components/src/local_ocr/Dockerfile"
+
+  # autoDeploy parameters
+  - name: namespace
+    value: Aurora
+  - name: app-path
+    value: localocr-service
+
+
+stages:
+  - template: azure-pipeline-template.yaml@templates
+    parameters:
+      autoDeployProd: true
+
