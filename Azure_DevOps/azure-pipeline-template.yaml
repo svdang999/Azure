@@ -1,0 +1,184 @@
+#########
+# Pipeline:
+#  --- Stage 1: Docker build --> Docker push image
+#  --- Stage 2: Analyze code (optional)
+#  --- Stage 3: Unit Test (optional)
+#  --- Stage 4: Automation Test (optional)
+#  --- Stage 5: Regression Test (optional)
+#  --- Stage 6: Deploy
+#      +---Stage 6.1: If <condition>  -> Deploy on Test (automatically)
+#      +---Stage 6.2: If <condition> -> deploy Prod (Manual Approve by Infra)
+
+#########
+parameters:
+- name: overrideDockerBuildArg
+  type: string
+  default: ''
+- name: unitTest
+  type: boolean
+  default: false  
+- name: automationTest
+  type: boolean
+  default: false
+- name: autoDeploy
+  type: boolean
+  default: false
+- name: autoDeployProd
+  type: boolean
+  default: false
+
+##  Stage 1: Build docker image and push to container registry
+##  Input:   
+##    CONTAINER_REGISTRY_SERVICE_CONNECTION
+##    image-name
+##    dockerfile-path
+##    image-tag
+##    parameters.overrideDockerBuildArg
+stages:
+- stage: BuildApplication
+  displayName: Build containerized application
+  jobs:
+  - job: Build
+    displayName: Build
+    steps:
+    - task: Docker@2
+      displayName: Build image
+      inputs:
+        containerRegistry: '$(CONTAINER_REGISTRY_SERVICE_CONNECTION)'
+        repository: '$(image-name)'
+        command: 'build'
+        Dockerfile: '$(dockerfile-path)'
+        tags: '$(image-tag)'
+        ${{ if parameters.overrideDockerBuildArg }}:
+          arguments: ${{ parameters.overrideDockerBuildArg }}
+        ${{ else }}:
+          arguments: '--build-arg BuildNumber=$(image-tag) --no-cache'
+    - task: Docker@2
+      displayName: Push image to container registry
+      inputs:
+        containerRegistry: '$(CONTAINER_REGISTRY_SERVICE_CONNECTION)'
+        repository: '$(image-name)'
+        command: 'push'
+        tags: '$(image-tag)'
+        
+
+# ##  Stage 2 : static code analysis (reserved)
+# - stage: static code analysis (reserved)
+#   displayName: static code analysis (reserved)
+
+# ##  Stage 3 : unit test (reserved)
+# - stage: unit test (reserved)
+#   displayName: unit test (reserved)
+
+## If unit test is enable, copy and publish test result
+- ${{ if eq(parameters.unitTest, true) }}:
+  - stage: PublishTestResults
+    displayName: Publish Test Results
+    jobs:
+    - job: CopyAndPublishTestResults
+      displayName: Copy and Publish Test Result
+      steps:
+      - task: CmdLine@2
+        displayName: Copy unit test results
+        inputs:
+          script: |
+            docker create --name $(test-container) $(CONTAINER_REGISTRY)/$(image-name):$(image-tag)
+            docker cp $(test-container):app/testresults $(Build.ArtifactStagingDirectory)/testresults
+            docker rm -fv $(test-container)
+
+      - task: PublishTestResults@2
+        displayName: Publish unit test results
+        inputs:
+          testResultsFormat: 'VSTest'
+          testResultsFiles: '**/*.trx'
+          searchFolder: '$(Build.ArtifactStagingDirectory)'
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+
+      - task: PublishCodeCoverageResults@1
+        displayName: Publish Code Coverage results
+        inputs:
+          codeCoverageTool: Cobertura
+          summaryFileLocation: '$(Build.ArtifactStagingDirectory)/**/coverage.cobertura.xml'
+
+# ##  Stage 4 : automation test (reserved)
+# - stage: automation test (reserved)
+#   displayName: automation test (reserved)
+
+# ##  Stage 5 : regression test (reserved)
+# - stage: regression test (reserved)
+#   displayName: regression test (reserved)
+
+# ##  Stage 6 : deployment (reserved)
+# - stage: deployment (reserved)
+#   displayName: deployment (reserved)
+##  Stage 6 : Deploy
+##  Input:
+## Parameters required: autoDeploy + namespace + app-folder
+
+## Staging/Test environment
+- ${{ if eq(parameters.autoDeploy, true) }}:
+  - stage: Update
+    displayName: Update Image's tag
+    jobs:
+    - job: Update
+      displayName: Update Image's tag
+
+      steps:
+      - checkout: 'git://Aurora/Aurora_Workload_Staging'
+        persistCredentials: true
+        
+      - task: CmdLine@2
+        displayName: Update image's tag
+        inputs:
+          script: |                
+            git config --global user.email "abc@xxx.com"
+            git config --global user.name "abc"       
+
+            #Update tag's image
+            git pull origin master
+            cd "$(namespace)/$(app-path)"
+            B64_PAT=$(printf "%s"":$(Aurora_project)" | base64) # abc@xxx.com Personal Access Tokens
+            sed -i 's/tag:.*/tag: "$(Build.BuildNumber)"/' ./values.yaml    
+            
+            #Push updates to repo
+            git add .        
+            git commit -m "Automatic update image's tag $(app-path)"  
+            git checkout -B temp-branch 
+            git checkout -B master
+            git merge temp-branch
+            git -c http.extraHeader="Authorization: Basic ${B64_PAT}" push -f origin master  
+
+
+## Production environment
+- ${{ if and(eq(parameters.autoDeployProd, true), startsWith(variables['Build.SourceBranch'], 'refs/heads/release/v')) }}:
+  - stage: Update
+    displayName: Update Image's tag
+    jobs:
+    - job: Update
+      displayName: Update Image's tag
+
+      steps:
+      - checkout: 'git://Aurora/Aurora_Workload_Production'
+        persistCredentials: true
+        
+      - task: CmdLine@2
+        displayName: Update image's tag
+        inputs:
+          script: |                
+            git config --global user.email "abc@xxx.com"
+            git config --global user.name "abc"         
+
+            #Update tag's image
+            git pull origin master
+            cd "$(namespace)/$(app-path)"
+            B64_PAT=$(printf "%s"":$(Aurora_project)" | base64) # abc@xxx.com Personal Access Tokens (PAT)
+            sed -i 's/tag:.*/tag: "$(Build.BuildNumber)"/' ./values.yaml    
+            
+            #Push updates to repo
+            git add .        
+            git commit -m "Automatic update image's tag $(app-path)"  
+            git checkout -B temp-branch 
+            git checkout -B master
+            git merge temp-branch
+            git -c http.extraHeader="Authorization: Basic ${B64_PAT}" push -f origin master  
