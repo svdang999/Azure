@@ -4,7 +4,7 @@ Make sure you have permission to create/view keyvaults
 
 The primary code formula we use for adding a secret to keyvault is:
 ```
-az keyvault secret set --vault-name akv-dev-test --name ahoangtest --value 123456 `
+az keyvault secret set --vault-name akv-dev-test --name test --value 123456 `
 ```
 Since we will migrate from akv-ntc-test to **existing keyvault** akv-dev-test, we 
 won't use Terraform to provision resources. The following code runs on Powershell with az cli
